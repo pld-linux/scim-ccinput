@@ -1,0 +1,11 @@
+--- scim-ccinput-0.3.1/configure.ac.orig	2005-06-02 02:22:49.000000000 +0200
++++ scim-ccinput-0.3.1/configure.ac	2012-11-25 19:14:13.051745486 +0100
+@@ -134,7 +134,7 @@
+ 
+ install_scim_version=`$PKG_CONFIG --modversion scim`
+ 
+-if [test "x${install_scim_version:0:3}" = "x1.2"]; then
++if echo "x${install_scim_version}" | grep -q '^x1\.2' ; then
+   AC_DEFINE(SCIM_1_2_API,1,[Whether the current scim is 1.2.x])
+ else
+   AC_DEFINE(SCIM_1_2_API,0)

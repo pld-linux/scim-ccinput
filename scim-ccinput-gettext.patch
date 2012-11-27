@@ -1,0 +1,41 @@
+--- scim-ccinput-0.3.1/scim/IMEngine/scim_ccin_imengine.cpp.orig	2005-06-09 18:36:30.000000000 +0200
++++ scim-ccinput-0.3.1/scim/IMEngine/scim_ccin_imengine.cpp	2012-11-25 21:23:39.931583598 +0100
+@@ -54,6 +54,7 @@
+ #endif
+ 
+ #include <scim.h>
++#include <libintl.h>
+ using namespace scim;
+ using namespace std;
+ 
+--- scim-ccinput-0.3.1/scim/IMEngine/Makefile.am.orig	2005-05-25 21:58:56.000000000 +0200
++++ scim-ccinput-0.3.1/scim/IMEngine/Makefile.am	2012-11-27 17:17:53.891622595 +0100
+@@ -36,8 +36,6 @@
+ ccin_la_LDFLAGS        = -avoid-version -no-undefined\
+                           -rpath $(moduledir) \
+                           -module\
+-                          @LIBTOOL_EXPORT_OPTIONS@ \
+-                          @INTLLIBS@ \
+                           @SCIM_LIBS@
+ 
+ ccin_la_LIBADD         = libgenerictable.la \
+--- scim-ccinput-0.3.1/scim/SetupUI/Makefile.am.orig	2005-05-25 22:43:32.000000000 +0200
++++ scim-ccinput-0.3.1/scim/SetupUI/Makefile.am	2012-11-27 17:18:19.671622058 +0100
+@@ -35,6 +35,4 @@
+ ccin_imengine_setup_la_LDFLAGS = -avoid-version \
+ 			     	-rpath $(setupmoduledir) \
+ 				-module \
+-				@LIBTOOL_EXPORT_OPTIONS@ \
+-				@INTLLIBS@ \
+ 				@SCIM_LIBS@
+--- scim-ccinput-0.3.1/scim/SetupUI/scim_ccin_imengine_setup.cpp.orig	2005-06-03 06:22:17.000000000 +0200
++++ scim-ccinput-0.3.1/scim/SetupUI/scim_ccin_imengine_setup.cpp	2012-11-27 17:27:00.781611196 +0100
+@@ -45,6 +45,8 @@
+ #define N_(String) (String)
+ 
+ #include <scim.h>
++#include <libintl.h>
++
+ using namespace scim;
+ using namespace std;
+ 

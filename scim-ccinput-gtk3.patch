@@ -1,0 +1,174 @@
+--- scim-ccinput-0.3.1/scim/SetupUI/scim_ccin_imengine_setup.cpp.orig	2012-11-27 17:27:33.834943841 +0100
++++ scim-ccinput-0.3.1/scim/SetupUI/scim_ccin_imengine_setup.cpp	2012-11-27 19:57:51.871422545 +0100
+@@ -31,6 +31,7 @@
+ #include <gtk/scimkeyselection.h>
+ 
+ #include <stdio.h>
++#include <cstring>
+ #include <iostream>
+ 
+ #ifndef INPUT_METHOD_NAME 
+@@ -205,7 +206,7 @@ static GtkWidget * __widget_show_shuangp
+ 
+ static bool is_shuangpin = true;  
+ static bool is_not_shuangpin = false;  
+-static GtkTooltips * __widget_tooltips            = 0;
++//static GtkTooltip * __widget_tooltips            = 0;
+ 
+ 
+ // Declaration of internal functions.
+@@ -426,7 +427,7 @@ load_config (const ConfigPointer &config
+ 		}else if (!strcmp (str.c_str(), "liu")){
+ 			__config_Shuangpin_Kind = _("liu");
+ 		}
+-		gtk_entry_set_text (GTK_ENTRY (GTK_COMBO (__widget_combo)->entry), (const char*)(__config_Shuangpin_Kind.c_str()) );
++		gtk_entry_set_text (GTK_ENTRY (gtk_bin_get_child(GTK_BIN(__widget_combo))), (const char*)(__config_Shuangpin_Kind.c_str()) );
+ 
+         __have_changed = false;
+     }
+@@ -461,8 +462,8 @@ save_config (const ConfigPointer &config
+                           __config_Fuzzy_R_L);
+         config->write (String (SCIM_CONFIG_IMENGINE_CCIN_SHUANGPIN_KEY),
+                           __config_shuangpin);
+-//        __config_Shuangpin_Kind = gtk_entry_get_text (GTK_ENTRY (GTK_COMBO (__widget_combo)->entry));
+-		String str	= gtk_entry_get_text (GTK_ENTRY (GTK_COMBO (__widget_combo)->entry));
++//        __config_Shuangpin_Kind = gtk_combo_box_text_get_active_text (GTK_COMBO_BOX_TEXT(__widget_combo));
++		String str	= gtk_combo_box_text_get_active_text (GTK_COMBO_BOX_TEXT(__widget_combo));
+ 		if (!strcmp (str.c_str(), _("chinesestar"))){
+ 			__config_Shuangpin_Kind = "chinesestar";
+ 		}else if (!strcmp (str.c_str(), _("nature"))){
+@@ -585,7 +586,7 @@ show_shuangpin_code(){
+ 
+ 	gtk_widget_show (__widget_show_shuangpin);
+ 
+-	String str	= gtk_entry_get_text (GTK_ENTRY (GTK_COMBO (__widget_combo)->entry));
++	String str	= gtk_combo_box_text_get_active_text (GTK_COMBO_BOX_TEXT(__widget_combo));
+ 	if (!strcmp (str.c_str(), _("chinesestar"))){
+ 		str = "sp_st.png";
+ 		pinyin_setup_str = _("chinesestar");
+@@ -612,7 +613,7 @@ show_shuangpin_code(){
+ 	frame = gtk_frame_new (pinyin_setup_str.c_str());
+     gtk_widget_show (frame);
+     gtk_container_set_border_width (GTK_CONTAINER (frame), 4);
+-    gtk_box_pack_start (GTK_BOX (GTK_DIALOG (__widget_show_shuangpin)->vbox),
++    gtk_box_pack_start (GTK_BOX (gtk_dialog_get_content_area(GTK_DIALOG(__widget_show_shuangpin))),
+                         frame, TRUE, TRUE, 0);
+ 
+     vbox = gtk_vbox_new (FALSE, 0);
+@@ -624,15 +625,15 @@ show_shuangpin_code(){
+     gtk_box_pack_start (GTK_BOX (vbox), image, TRUE, TRUE, 0);
+     gtk_widget_show (image);    
+ 
+-    g_signal_connect_swapped (GTK_OBJECT (__widget_show_shuangpin), 
++    g_signal_connect_swapped (G_OBJECT (__widget_show_shuangpin), 
+                                   "response", 
+                                   G_CALLBACK (gtk_widget_hide),
+-                                  GTK_OBJECT (__widget_show_shuangpin));
++                                  G_OBJECT (__widget_show_shuangpin));
+ 
+-    g_signal_connect_swapped (GTK_OBJECT (__widget_show_shuangpin), 
++    g_signal_connect_swapped (G_OBJECT (__widget_show_shuangpin), 
+                                   "delete_event", 
+                                   G_CALLBACK (gtk_widget_hide_on_delete),
+-                                  GTK_OBJECT (__widget_show_shuangpin));
++                                  G_OBJECT (__widget_show_shuangpin));
+ 
+ 	gtk_widget_show (__widget_show_shuangpin);
+ 
+@@ -643,10 +644,10 @@ show_shuangpin_code(){
+ }
+ 
+ static void
+-on_combo_activate (GtkCombo *combo,
++on_combo_activate (GtkComboBox *combo,
+                    gpointer         user_data)
+ {
+-//	__config_Shuangpin_Kind = gtk_entry_get_text (GTK_ENTRY (GTK_COMBO (__widget_combo)->entry));
++//	__config_Shuangpin_Kind = gtk_combo_box_text_get_active_text (GTK_COMBO_BOX_TEXT(__widget_combo));
+ //    __have_changed = true;
+ }
+ 
+@@ -664,8 +665,6 @@ create_setup_fuzzy_window(GtkWidget *not
+     GtkWidget *label;
+     int i;
+ 
+-    __widget_tooltips = gtk_tooltips_new ();
+-
+     hbox = gtk_hbox_new (FALSE, 8);
+     gtk_widget_show (hbox);
+     gtk_container_add (GTK_CONTAINER (notebook), hbox);
+@@ -815,25 +814,25 @@ create_setup_fuzzy_window(GtkWidget *not
+                           &__config_Fuzzy_R_L);
+ 
+     // Set all tooltips.
+-    gtk_tooltips_set_tip (__widget_tooltips, __widget_show_prompt,
++    gtk_widget_set_tooltip_text (__widget_show_prompt,
+                               _("If this option is checked, "
+                                 "the key prompt of the currently selected phrase "
+-                                "will be shown."), NULL);
++                                "will be shown."));
+ 
+-    gtk_tooltips_set_tip (__widget_tooltips, __widget_show_key_hint,
++    gtk_widget_set_tooltip_text (__widget_show_key_hint,
+                               _("If this option is checked, "
+                                 "the remaining keystrokes of the phrases"
+-                                "will be shown on the lookup table."), NULL);
++                                "will be shown on the lookup table."));
+ 
+-    gtk_tooltips_set_tip (__widget_tooltips, __widget_user_table_binary,
++    gtk_widget_set_tooltip_text (__widget_user_table_binary,
+                               _("If this option is checked, "
+                                 "the user table will be stored with binary format, "
+-                                "this will increase the loading speed."), NULL);
++                                "this will increase the loading speed."));
+ 
+-    gtk_tooltips_set_tip (__widget_tooltips, __widget_long_phrase_first,
++    gtk_widget_set_tooltip_text (__widget_long_phrase_first,
+                               _("If this option is checked, "
+                                 "the longer phrase will be shown "
+-                                "in front of others. "), NULL);
++                                "in front of others. "));
+ 
+ 
+ }
+@@ -886,16 +885,15 @@ create_setup_sp_window(GtkWidget *notebo
+     gtk_widget_show (hbox);
+     gtk_container_add (GTK_CONTAINER (vbox), hbox);
+ 
+-	__widget_combo = gtk_combo_new ();
++	__widget_combo = gtk_combo_box_text_new_with_entry ();
+ 	gtk_widget_show (__widget_combo);
+ 	GList *glist = NULL;
+-	glist = g_list_append (glist, _("chinesestar"));
+-    glist = g_list_append (glist, _("nature"));
+-    glist = g_list_append (glist, _("microsoft")); 
+-    glist = g_list_append (glist, _("ziguang")); 
+-    glist = g_list_append (glist, _("abc"));
+-    glist = g_list_append (glist, _("liu"));
+-    gtk_combo_set_popdown_strings (GTK_COMBO (__widget_combo), glist);
++    gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(__widget_combo), _("chinesestar"));
++    gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(__widget_combo), _("nature"));
++    gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(__widget_combo), _("microsoft")); 
++    gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(__widget_combo), _("ziguang")); 
++    gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(__widget_combo), _("abc"));
++    gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(__widget_combo), _("liu"));
+     gtk_container_add (GTK_CONTAINER (hbox), __widget_combo);
+ 
+ 	__widget_shuangpin_code_command = gtk_button_new_with_label (_("Show ..."));
+@@ -914,7 +912,7 @@ create_setup_sp_window(GtkWidget *notebo
+ 	}
+ 
+ // Connect all signals.
+-	g_signal_connect (G_OBJECT (GTK_COMBO (__widget_combo)), "activate",
++	g_signal_connect (G_OBJECT (GTK_COMBO_BOX (__widget_combo)), "activate",
+     	                  G_CALLBACK (on_combo_activate), NULL);
+ 	
+     g_signal_connect ((gpointer) __widget_quanpin_setup, "toggled",
+--- scim-ccinput-0.3.1/scim/SetupUI/Makefile.am.orig	2012-11-27 17:27:33.831610508 +0100
++++ scim-ccinput-0.3.1/scim/SetupUI/Makefile.am	2012-11-27 20:20:40.828060677 +0100
+@@ -35,4 +35,4 @@
+ ccin_imengine_setup_la_LDFLAGS = -avoid-version \
+ 			     	-rpath $(setupmoduledir) \
+ 				-module \
+-				@SCIM_LIBS@
++				@SCIM_GTKUTILS_LIBS@
